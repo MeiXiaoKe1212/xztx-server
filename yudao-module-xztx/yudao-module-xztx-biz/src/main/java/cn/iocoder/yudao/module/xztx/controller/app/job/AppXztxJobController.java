@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -234,6 +235,16 @@ public class AppXztxJobController {
         }
 
         return success(pageResult);
+    }
+
+    /**
+     * 条件查询
+     * @return
+     */
+    @GetMapping("/selectByRule")
+    public CommonResult<PageResult<XztxJobDO>> selectByRule(){
+
+        return null;
     }
 
 //    @GetMapping("/export-excel")
