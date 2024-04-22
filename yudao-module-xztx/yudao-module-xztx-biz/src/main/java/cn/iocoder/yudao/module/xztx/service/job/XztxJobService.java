@@ -52,4 +52,12 @@ public interface XztxJobService {
      */
     PageResult<XztxJobDO> getJobPage(JobPageReqVO pageReqVO);
 
+    /**
+     * 处理字典数据
+     *
+     * @param jobDO
+     * @return
+     */
+    XztxJobDO processDictType(XztxJobDO jobDO);
+
 }

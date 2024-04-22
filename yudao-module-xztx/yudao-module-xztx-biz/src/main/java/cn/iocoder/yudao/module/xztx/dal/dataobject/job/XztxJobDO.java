@@ -5,6 +5,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.*;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
@@ -130,4 +131,63 @@ public class XztxJobDO extends BaseDO {
      */
     private Long createBy;
 
+    /**
+     * 工作福利列表
+     */
+    @TableField(exist = false)
+    private List<String> jobWelfareLabels;
+
+    /**
+     * 岗位特色
+     */
+    @TableField(exist = false)
+    private List<String> jobTeseLabels;
+
+    /**
+     * 岗位行业label
+     */
+    @TableField(exist = false)
+    private String jobIndustryTypeLabel;
+
+    /**
+     * 省
+     */
+    @TableField(exist = false)
+    private String provinceName;
+
+    /**
+     * 市
+     */
+    @TableField(exist = false)
+    private String cityName;
+
+    /**
+     * 县/区
+     */
+    @TableField(exist = false)
+    private String threeCityName;
+
+    /**
+     * 学历
+     */
+    @TableField(exist = false)
+    private String eduLabel;
+
+    /**
+     * 工作经验
+     */
+    @TableField(exist = false)
+    private String expLabel;
+
+    /**
+     * 残疾类别
+     */
+    @TableField(exist = false)
+    private List<String> disTypeLabels;
+
+    /**
+     * 工作类型
+     */
+    @TableField(exist = false)
+    private String jobTypeLabel;
 }
