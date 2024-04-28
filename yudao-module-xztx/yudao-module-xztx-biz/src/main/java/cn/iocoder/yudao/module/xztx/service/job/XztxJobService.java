@@ -2,10 +2,12 @@ package cn.iocoder.yudao.module.xztx.service.job;
 
 
 import cn.iocoder.yudao.module.xztx.controller.admin.job.vo.*;
+import cn.iocoder.yudao.module.xztx.controller.app.vo.AppJobSaveReqVO;
 import cn.iocoder.yudao.module.xztx.dal.dataobject.job.XztxJobDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 招聘岗位 Service 接口
@@ -21,6 +23,22 @@ public interface XztxJobService {
      * @return 编号
      */
     Long createJob(@Valid JobSaveReqVO createReqVO);
+
+    /**
+     * App端 新增岗位
+     *
+     * @param createReqVO AppJobSaveReqVO
+     * @return 编号
+     */
+    Long appCreatJob(@Valid AppJobSaveReqVO createReqVO);
+
+
+    /**
+     * 查看我发布的岗位
+     *
+     * @return List<XztxJobDO>
+     */
+    List<XztxJobDO> listByUserId();
 
     /**
      * 更新招聘岗位

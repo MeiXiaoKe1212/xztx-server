@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.xztx.dal.dataobject.job;
 
+import cn.iocoder.yudao.module.xztx.dal.dataobject.company.XztxCompanyDO;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -190,4 +191,10 @@ public class XztxJobDO extends BaseDO {
      */
     @TableField(exist = false)
     private String jobTypeLabel;
+
+    /**
+     * 公司名称
+     */
+    @TableField(exist = false)
+    private XztxCompanyDO company;
 }

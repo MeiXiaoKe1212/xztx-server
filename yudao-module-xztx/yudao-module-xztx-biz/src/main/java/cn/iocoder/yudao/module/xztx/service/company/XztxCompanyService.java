@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.xztx.service.company;
 
 import java.util.*;
+
 import cn.iocoder.yudao.module.xztx.controller.admin.company.vo.*;
 import cn.iocoder.yudao.module.xztx.dal.dataobject.company.XztxCompanyDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -51,5 +52,14 @@ public interface XztxCompanyService {
      * @return 携智同行 企业分页
      */
     PageResult<XztxCompanyDO> getCompanyPage(XztxCompanyPageReqVO pageReqVO);
+
+    /**
+     * 根据联系人手机号查询企业
+     *
+     * @param phone 手机号
+     * @return XztxCompanyDO
+     */
+    XztxCompanyDO getCompanyByPhone(String phone);
+
 
 }

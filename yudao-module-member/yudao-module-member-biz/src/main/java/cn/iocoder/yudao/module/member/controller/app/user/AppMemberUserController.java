@@ -41,6 +41,18 @@ public class AppMemberUserController {
         return success(user);
     }
 
+    @PostMapping("/register")
+    @Operation(summary = "用户注册")
+    public CommonResult<MemberUserDO> register(@RequestBody @Valid AppMemberUserRegisterReqVO reqVO) {
+        return success(userService.register(reqVO));
+    }
+
+    @PostMapping("/appRecruiterRegister")
+    @Operation(summary = "用户注册")
+    public CommonResult appRecruiterRegister(@RequestBody @Valid AppRecruiterRegistrationRequestVO reqVO) {
+        return success(userService.appRecruiterRegister(reqVO));
+    }
+
     @PutMapping("/update")
     @Operation(summary = "修改基本信息")
     @PreAuthenticated

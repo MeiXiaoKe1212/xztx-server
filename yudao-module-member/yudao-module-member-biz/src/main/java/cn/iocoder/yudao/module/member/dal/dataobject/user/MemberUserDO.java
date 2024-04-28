@@ -8,10 +8,7 @@ import cn.iocoder.yudao.framework.mybatis.core.type.LongListTypeHandler;
 import cn.iocoder.yudao.module.member.dal.dataobject.group.MemberGroupDO;
 import cn.iocoder.yudao.module.member.dal.dataobject.level.MemberLevelDO;
 import cn.iocoder.yudao.module.system.enums.common.SexEnum;
-import com.baomidou.mybatisplus.annotation.KeySequence;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -39,41 +36,55 @@ public class MemberUserDO extends BaseDO {
     /**
      * 用户ID
      */
-    @TableId
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+
+    /**
+     * app用户类型（0：招聘者，1：找工作者）
+     */
+    private Integer userType;
+
     /**
      * 手机
      */
     private String mobile;
+
     /**
      * 加密后的密码
      * <p>
      * 因为目前使用 {@link BCryptPasswordEncoder} 加密器，所以无需自己处理 salt 盐
      */
     private String password;
+
     /**
      * 帐号状态
      * <p>
      * 枚举 {@link CommonStatusEnum}
      */
     private Integer status;
+
     /**
      * 注册 IP
      */
     private String registerIp;
+
     /**
      * 注册终端
      * 枚举 {@link TerminalEnum}
      */
     private Integer registerTerminal;
+
     /**
      * 最后登录IP
      */
     private String loginIp;
+
     /**
      * 最后登录时间
      */
     private LocalDateTime loginDate;
+
 
     // ========== 基础信息 ==========
 

@@ -9,7 +9,10 @@ import cn.iocoder.yudao.framework.ip.core.Area;
 import cn.iocoder.yudao.framework.ip.core.utils.AreaUtils;
 import cn.iocoder.yudao.module.xztx.controller.admin.job.vo.JobPageReqVO;
 import cn.iocoder.yudao.module.xztx.controller.admin.job.vo.JobRespVO;
+import cn.iocoder.yudao.module.xztx.controller.app.vo.AppJobSaveReqVO;
+import cn.iocoder.yudao.module.xztx.dal.dataobject.company.XztxCompanyDO;
 import cn.iocoder.yudao.module.xztx.dal.dataobject.job.XztxJobDO;
+import cn.iocoder.yudao.module.xztx.service.company.XztxCompanyService;
 import cn.iocoder.yudao.module.xztx.service.job.XztxJobService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,7 +29,7 @@ import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
-@Tag(name = "管理后台 - 招聘岗位")
+@Tag(name = "用户 App - 招聘岗位")
 @RestController
 @RequestMapping("/xztx/job")
 @Validated
@@ -35,14 +38,22 @@ public class AppXztxJobController {
     @Resource
     private XztxJobService xztxJobService;
 
+    @Resource
+    private XztxCompanyService companyService;
 
-//    @PostMapping("/create")
-//    @Operation(summary = "创建招聘岗位")
-//    @PreAuthorize("@ss.hasPermission('xztx:job:create')")
-//    public CommonResult<Long> createJob(@Valid @RequestBody AppJobSaveReqVO createReqVO) {
-//        return success(xztxJobService.createJob(createReqVO));
-//    }
 
+    @PostMapping("/create")
+    @Operation(summary = "创建招聘岗位")
+    public CommonResult<Long> createJob(@Valid @RequestBody AppJobSaveReqVO createReqVO) {
+        return success(xztxJobService.appCreatJob(createReqVO));
+    }
+
+
+    @GetMapping("/listByUserId")
+    @Operation(summary = "查看我发布的岗位")
+    public CommonResult<List<XztxJobDO>> listByUserId() {
+        return success(xztxJobService.listByUserId());
+    }
 //    @PutMapping("/update")
 //    @Operation(summary = "更新招聘岗位")
 //    @PreAuthorize("@ss.hasPermission('xztx:job:update')")
@@ -143,6 +154,10 @@ public class AppXztxJobController {
         Integer jobType = jobDO.getJobType();
         String jobTypeLabel = DictFrameworkUtils.getDictDataLabel("job_type", jobType);
         jobDO.setJobTypeLabel(jobTypeLabel);
+        // 9. 公司名称
+        Long companyId = jobDO.getCompanyId();
+        XztxCompanyDO company = companyService.getCompany(companyId);
+        jobDO.setCompany(company);
         // endregion
         return success(jobDO);
     }
@@ -231,6 +246,10 @@ public class AppXztxJobController {
             Integer jobType = jobDO.getJobType();
             String jobTypeLabel = DictFrameworkUtils.getDictDataLabel("job_type", jobType);
             jobDO.setJobTypeLabel(jobTypeLabel);
+            // 9. 公司名称
+            Long companyId = jobDO.getCompanyId();
+            XztxCompanyDO company = companyService.getCompany(companyId);
+            jobDO.setCompany(company);
             // endregion
         }
 
@@ -239,10 +258,11 @@ public class AppXztxJobController {
 
     /**
      * 条件查询
+     *
      * @return
      */
     @GetMapping("/selectByRule")
-    public CommonResult<PageResult<XztxJobDO>> selectByRule(){
+    public CommonResult<PageResult<XztxJobDO>> selectByRule() {
 
         return null;
     }

@@ -1,24 +1,18 @@
 package cn.iocoder.yudao.module.xztx.service.company;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.ip.core.Area;
 import cn.iocoder.yudao.framework.ip.core.utils.AreaUtils;
+import cn.iocoder.yudao.module.xztx.controller.admin.company.vo.XztxCompanyPageReqVO;
+import cn.iocoder.yudao.module.xztx.controller.admin.company.vo.XztxCompanySaveReqVO;
+import cn.iocoder.yudao.module.xztx.dal.dataobject.company.XztxCompanyDO;
+import cn.iocoder.yudao.module.xztx.dal.mysql.company.XztxCompanyMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import cn.iocoder.yudao.module.xztx.controller.admin.company.vo.*;
-import cn.iocoder.yudao.module.xztx.dal.dataobject.company.XztxCompanyDO;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.pojo.PageParam;
-import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-
-import cn.iocoder.yudao.module.xztx.dal.mysql.company.XztxCompanyMapper;
 
 import javax.annotation.Resource;
-
-import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.xztx.enums.ErrorCodeConstants.*;
+import java.util.List;
 
 /**
  * 携智同行 企业 Service 实现类
@@ -81,6 +75,11 @@ public class XztxCompanyServiceImpl implements XztxCompanyService {
     @Override
     public PageResult<XztxCompanyDO> getCompanyPage(XztxCompanyPageReqVO pageReqVO) {
         return companyMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public XztxCompanyDO getCompanyByPhone(String phone) {
+        return companyMapper.selectOne("contact_phone", phone);
     }
 
 }

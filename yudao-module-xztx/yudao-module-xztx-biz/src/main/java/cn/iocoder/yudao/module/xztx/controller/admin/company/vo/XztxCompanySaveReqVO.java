@@ -30,4 +30,7 @@ public class XztxCompanySaveReqVO {
     @Schema(description = "状态（0停用，1正常）", example = "1")
     private Integer status;
 
+    @Schema(description = "创建者")
+    private Long userId;
+
 }

@@ -3,9 +3,14 @@ package cn.iocoder.yudao.module.member.service.user;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.*;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
+import cn.iocoder.yudao.framework.common.exception.ErrorCode;
+import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserPageReqVO;
@@ -21,6 +26,8 @@ import cn.iocoder.yudao.module.system.api.sms.dto.code.SmsCodeUseReqDTO;
 import cn.iocoder.yudao.module.system.api.social.SocialClientApi;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialWxPhoneNumberInfoRespDTO;
 import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
+import cn.iocoder.yudao.module.xztx.api.XztxCompanyApi;
+import cn.iocoder.yudao.module.xztx.api.dto.CompanyForCreateDTO;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -56,6 +63,9 @@ public class MemberUserServiceImpl implements MemberUserService {
     private SmsCodeApi smsCodeApi;
 
     @Resource
+    private XztxCompanyApi companyApi;
+
+    @Resource
     private SocialClientApi socialClientApi;
 
     @Resource
@@ -84,6 +94,113 @@ public class MemberUserServiceImpl implements MemberUserService {
         }
         // 用户不存在，则进行创建
         return createUser(mobile, null, null, registerIp, terminal);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MemberUserDO register(AppMemberUserRegisterReqVO vo) {
+        // 校验验证码
+        String smsCode = vo.getCode();
+        SmsCodeUseReqDTO smsCodeUseReqDTO = new SmsCodeUseReqDTO();
+        smsCodeUseReqDTO.setMobile(vo.getPhone()).setCode(smsCode).setScene(SmsSceneEnum.MEMBER_REGISTER.getScene()).setUsedIp(getClientIP());
+        smsCodeApi.useSmsCode(smsCodeUseReqDTO);
+
+        // 用户已经存在
+        MemberUserDO user = memberUserMapper.selectByMobile(vo.getPhone());
+        if (user != null) {
+            return user;
+        }
+        // 创建用户
+        String phone = vo.getPhone();
+        String password = vo.getPassword();
+        String nickname = vo.getNickname();
+        String name = vo.getName();
+        Integer sex = vo.getSex();
+        Integer userType = vo.getUserType(); // 0为应聘者 1为招聘者
+        String avatar = vo.getAvatar();
+
+        MemberUserDO userToSave = new MemberUserDO();
+        userToSave.setMobile(phone);
+        userToSave.setPassword(encodePassword(password));
+        userToSave.setRegisterIp(getClientIP()).setRegisterTerminal(userToSave.getRegisterTerminal());
+        userToSave.setAvatar(avatar);
+        userToSave.setNickname(nickname).setSex(sex).setUserType(userType).setName(name);
+        userToSave.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
+
+        memberUserMapper.insert(userToSave);
+
+        // 发送 MQ 消息：用户创建
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+            @Override
+            public void afterCommit() {
+                memberUserProducer.sendUserCreateMessage(userToSave.getId());
+            }
+
+        });
+
+        return userToSave;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CommonResult appRecruiterRegister(AppRecruiterRegistrationRequestVO vo) {
+        // 校验验证码
+        String smsCode = vo.getCode();
+        SmsCodeUseReqDTO smsCodeUseReqDTO = new SmsCodeUseReqDTO();
+        smsCodeUseReqDTO.setMobile(vo.getPhone()).setCode(smsCode).setScene(SmsSceneEnum.MEMBER_REGISTER.getScene()).setUsedIp(getClientIP());
+        smsCodeApi.useSmsCode(smsCodeUseReqDTO);
+
+        // 用户已经存在
+        MemberUserDO user = memberUserMapper.selectByMobile(vo.getPhone());
+        if (user != null) {
+            return CommonResult.error(501, "您已经注册过平台");
+        }
+        // 创建用户
+        String phone = vo.getPhone();
+        String password = vo.getPassword();
+        String nickname = vo.getNickname();
+        String name = vo.getName();
+        Integer sex = vo.getSex();
+        Integer userType = vo.getUserType(); // 0为应聘者 1为招聘者
+        String avatar = vo.getAvatar();
+
+        MemberUserDO userToSave = new MemberUserDO();
+        userToSave.setMobile(phone);
+        userToSave.setPassword(encodePassword(password));
+        userToSave.setRegisterIp(getClientIP()).setRegisterTerminal(userToSave.getRegisterTerminal());
+        userToSave.setAvatar(avatar);
+        userToSave.setNickname(nickname).setSex(sex).setUserType(userType).setName(name);
+        userToSave.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
+
+        int insert = memberUserMapper.insert(userToSave);
+        if (insert == 0) {
+            throw exception(new ErrorCode(500, "注册失败"));
+        }
+
+        // 发送 MQ 消息：用户创建
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                memberUserProducer.sendUserCreateMessage(userToSave.getId());
+            }
+        });
+
+        // 新建Company类
+        boolean exists = companyApi.existAccount(phone);
+        if (exists) {
+            return CommonResult.error(500, "您已经注册过公司账号");
+        }
+        CompanyForCreateDTO companySaveReqVO = new CompanyForCreateDTO();
+        companySaveReqVO.setName(vo.getCompanyName())
+                .setContactPhone(vo.getPhone())
+                .setContactPerson(vo.getName())
+                .setLocationList(vo.getCompanyAddress())
+                .setScale(vo.getCompanyScale())
+                .setUserId(userToSave.getId());
+        companyApi.createCompany(companySaveReqVO);
+
+        return CommonResult.success("注册成功");
     }
 
     @Override

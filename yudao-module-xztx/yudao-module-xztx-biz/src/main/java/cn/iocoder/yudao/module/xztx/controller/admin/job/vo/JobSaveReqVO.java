@@ -72,7 +72,9 @@ public class JobSaveReqVO {
     @Schema(description = "岗位状态")
     private Integer jobStatus;
 
-    @Schema(description = "招聘起址时间")
-    private String jobBeginEndDate;
+    @Schema(description = "招聘开始时间")
+    private String beginTime;
 
+    @Schema(description = "招聘结束时间")
+    private String endTime;
 }

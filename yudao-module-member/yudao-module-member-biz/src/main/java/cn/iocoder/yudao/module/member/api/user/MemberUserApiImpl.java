@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.member.api.user;
 
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.member.api.user.dto.MemberUserRespDTO;
 import cn.iocoder.yudao.module.member.convert.user.MemberUserConvert;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
@@ -26,7 +27,7 @@ public class MemberUserApiImpl implements MemberUserApi {
     @Override
     public MemberUserRespDTO getUser(Long id) {
         MemberUserDO user = userService.getUser(id);
-        return MemberUserConvert.INSTANCE.convert2(user);
+        return BeanUtils.toBean(user, MemberUserRespDTO.class);
     }
 
     @Override

@@ -35,6 +35,16 @@ public class MemberUserRespDTO {
      * 手机
      */
     private String mobile;
+
+    /**
+     * 真实姓名
+     */
+    private String name;
+
+    /**
+     * 性别
+     */
+    private Integer sex;
     /**
      * 创建时间（注册时间）
      */
